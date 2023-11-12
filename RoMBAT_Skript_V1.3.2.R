@@ -168,8 +168,8 @@ rm(temp_number_of_import_lines,temp_patient_values,temp_adress_import,temp_lengt
 
 # 2. Colour adjustment -------------------------------------------------------
 fill <- vector(length = 0)
-# Dem plot-Befehl muessen fuer jede gezeichnete Box die Farbe mit dem Hinweis "fill" uebergeben werden
-# Diese Schleifen uebergeben die Farben fuer die ersten beiden Probentypen dediziert und danach aus einer Palette
+# The plot command must be given the color with the hint "fill" for each drawn box
+# These loops transfer the colors for the first two sample types dedicated and then from a palette
 for (j in (1:length_sample_type_comparison)){
   for (i in (1:anzahl_unterschiedlicher_werte_messtag)){
     if (j == 1){
@@ -185,9 +185,9 @@ for (j in (1:length_sample_type_comparison)){
       fill <- c(fill, palette.colors(n=j-7,palette = "ggplot2")[j-7])
     }
   }
-}
-alpha <- 1 #Transparentwert(Alpha) fuer die Boxen (1 ist nicht transparent)
-alpha_violin <- 0.5 #Transparent(Alpha) fuer die Violinplots (0 ist komplett transparent)
+} 
+alpha <- 1 # Transparency value (alpha) for the boxes (1 is not transparent)
+alpha_violin <- 0.5 # Transparency value (alpha) for the violinplots (1 is not transparent)
 
 # 3. GUI Code ----------------------------------------------------------------
 
@@ -282,7 +282,7 @@ server <- function(input, output, session) {
     
     substanz <- which(colnames(import_data) == as.character(input$gewaehlte_substanz))
 
-    # Die Schleife wird ausgefuehrt wenn einer unten aufgefuehrten Werte veraendert wird
+    # The loop is executed when one of the values listed below is changed
     reaktivitaet <- input$gewaehlte_substanz
     reaktivitaet <- input$grenzwert
     reaktivitaet <- input$draw_violin_plots
@@ -301,8 +301,8 @@ server <- function(input, output, session) {
 
 #3.2.1 normalize data ----------------------------------------------------
 
-    # numeric_normalized_data muss in das tibble gesteckt werden und dort Werte ueberschreiben
-    # funktioniert das auch wenn die tage nicht sortiert sind?
+    #
+    #
     import_data_normalized <- import_data
     import_data_safety <- import_data
     adress_time_point_to_normalize_on <- which(timepoint_values==time_point_to_normalize_on)
@@ -311,13 +311,13 @@ server <- function(input, output, session) {
       for (i in (1:anzahl_unterschiedlicher_werte_messtag)){
         for (j in (1:anzahl_unterschiedlicher_werte_patient)){
           numeric_normalized_data <- as.numeric(import_data[zeilennummer_patient[j,i],4:length(import_data[zeilennummer_patient[j,i],])])/as.numeric(import_data[zeilennummer_patient[j,adress_time_point_to_normalize_on],4:length(import_data[zeilennummer_patient[j,i],])])
-          numeric_normalized_data[numeric_normalized_data==Inf] <- 0 # wenn etwas durch 0 geteilt wird
-          numeric_normalized_data[is.nan(numeric_normalized_data)] <- 1 # wenn 0 durch 0 geteilt wird
+          numeric_normalized_data[numeric_normalized_data==Inf] <- 0 # if something should be divided by 0
+          numeric_normalized_data[is.nan(numeric_normalized_data)] <- 1 # if 0 should be divided by 0
           for (k in (1:(dimension_import[2]-3))){
             import_data_normalized[zeilennummer_patient[j,i],k+3] <- numeric_normalized_data[k]
           }
         }
-         #4. Spalte zur Sortierung der Daten um einzelne Patienten zu sortieren
+         #4. column to sort the data according to individual sample sources (e.g. patients)
       }
       import_data <- import_data_normalized
     }
@@ -341,17 +341,17 @@ server <- function(input, output, session) {
     for (zaehler_1 in ((anzahl_unterschiedlicher_werte_beides-1):1)){
       adresse_2 <- adresse_1+1
       for (zaehler_2 in (1:zaehler_1)){
-        if (is.na(import_data[1,substanz]) == FALSE && laenge_zeilennummer_beides[adresse_1] != 1 && laenge_zeilennummer_beides[adresse_2] != 1) { #Es muss mehr als ein Wert fuer die p-Wert Berechnung untersucht werden
+        if (is.na(import_data[1,substanz]) == FALSE && laenge_zeilennummer_beides[adresse_1] != 1 && laenge_zeilennummer_beides[adresse_2] != 1) { # More than one value must be analyzed for the p-value calculation
           temp_stat_test <- wilcox.test(as.numeric(unlist(import_data[zeilennummer_beides[adresse_1,1:laenge_zeilennummer_beides[adresse_1]],substanz])),
                                         as.numeric(unlist(import_data[zeilennummer_beides[adresse_2,1:laenge_zeilennummer_beides[adresse_2]],substanz])))
           p_values_vgl_beides[lauf_stat_test] <- unlist(temp_stat_test[3])
           if (is.nan(p_values_vgl_beides[lauf_stat_test])){
-            p_values_vgl_beides[lauf_stat_test] <- 3 # wenn der Ausgangswert keinen gueltigen statistischen Test zulaesst (z.B. zu viele 0en) dann gibt es den Fehlercode "3"
+            p_values_vgl_beides[lauf_stat_test] <- 3 # if the output value does not allow a valid statistical test (e.g. too many 0s) then the error code "3" is written
           }
         } else{
-          p_values_vgl_beides[lauf_stat_test] <- 2 # wenn der Ausgangswert Na ist (nicht vorhanden), dann nimmt p_values_vgl_probentypen den Fehlercode "2" an
+          p_values_vgl_beides[lauf_stat_test] <- 2 # if the initial value is NA (not available), then the error code "2" is written
         }
-        # Namen fuer die Zellen, auskommentiert, da Leistungshungrig
+        # Names for the cells, commented out, as performance-hungry
         'namen_p_values_vgl_beides[lauf_stat_test] <- paste("Vergleich zwischen",
                                                                   colnames(import_data[1]),as.character(import_data[zeilennummer_beides[adresse_1,1],1]),
                                                                   colnames(import_data[2]),as.character(import_data[zeilennummer_beides[adresse_1,2],2]),
@@ -373,22 +373,22 @@ server <- function(input, output, session) {
     lauf_comp_probentag <- 1
     comp_probentyp <- matrix(nrow = dimension_import[1], ncol = 3)
     comp_probentag <- matrix(nrow = dimension_import[1], ncol = 3)
-    comparisons_table <- matrix(ncol = 3, nrow = 2) # falls keine Tabelle erstellt wird (der Grenzwert zu niedrig ist) fuehrt die Initialisierung hier dazu, dass trotzdem ein plot gezeichnet wird
-    comparisons_manuell <- matrix() # falls keine Signifikanzen ueber dem Grenzwert liegen, fuehrt die Initialisierung hier dazu, dass trotzdem ein plot gezeichnet wird
+    comparisons_table <- matrix(ncol = 3, nrow = 2) # if no table is created (the limit value is too low), the initialization here causes a plot to be drawn anyway
+    comparisons_manuell <- matrix() # if no significances are above the threshold, the initialization here leads to a plot being drawn anyway
     for (zaehler_1 in ((anzahl_unterschiedlicher_werte_beides-1):1)){
       adresse_2 <- adresse_1 + 1
       for (zaehler_2 in (1:zaehler_1)){
-        # Bedingung if Schleife: Wenn der p-value unter dem korrigierten Grenzwert liegt und sich der p-value entweder am gleichen Tag oder beim selben Probentyp unterscheidet
+        # Condition of the if loop: If the p-value is below the corrected limit value and the p-value differs either on the same day or for the same sample type
         if ((p_values_vgl_beides[lauf] <= grenzwert) && (import_data[zeilennummer_beides[adresse_1],1]==import_data[zeilennummer_beides[adresse_2],1] || import_data[zeilennummer_beides[adresse_1],2] == import_data[zeilennummer_beides[adresse_2],2])){
           
-          # An welchem Probentag treten Signifikanzen zwischen den Probentypen auf
+          # On which day (probentag) does significance occur between the sample types (probentyp)
           if (import_data[zeilennummer_beides[adresse_1],1]==import_data[zeilennummer_beides[adresse_2],1]){
             comp_probentyp[lauf_comp_probentyp,1] <- as.character(import_data[zeilennummer_beides[adresse_1],2]) # Wert 1 fuer comparison im plot
             comp_probentyp[lauf_comp_probentyp,2] <- as.character(import_data[zeilennummer_beides[adresse_2],2]) # Wert 2 fuer comparison im plot
             comp_probentyp[lauf_comp_probentyp,3] <- as.character(import_data[zeilennummer_beides[adresse_2],1]) # der Tag an dem sich die Probentypen signifikant unterscheiden
             lauf_comp_probentyp <- lauf_comp_probentyp + 1
           }
-          # Bei welchen Probentypen treten Signifikanzen zwischen den Probentagen auf
+          # For which sample type (probentyp) does significance occur between the days (probentag)
           if (import_data[zeilennummer_beides[adresse_1],2]==import_data[zeilennummer_beides[adresse_2],2]){
             comp_probentag[lauf_comp_probentag,1] <- as.character(import_data[zeilennummer_beides[adresse_1],1]) # Wert 1 fuer comparison im plot
             comp_probentag[lauf_comp_probentag,2] <- as.character(import_data[zeilennummer_beides[adresse_2],1]) # Wert 2 fuer comparison im plot
@@ -402,16 +402,16 @@ server <- function(input, output, session) {
       adresse_1 <- adresse_1 + 1
     }
     comp_probentag_ohne_NA <- comp_probentag[!is.na(comp_probentag[,1]),]
-    # um Fehlermeldungen zu vermeiden die nrow erzeugt wenn es nur eine oder keine Reihe gibt, wird eine Variable verwendet mit ueberpruefung
+    # To avoid error messages that nrow generates when there is only one or no row, a variable is used to check it
     nrow_comp_probentag_ohne_NA <- nrow(comp_probentag_ohne_NA)
     if (is.null(nrow_comp_probentag_ohne_NA)||nrow_comp_probentag_ohne_NA==0){
       nrow_comp_probentag_ohne_NA <- 1
-      #Falls es nur einen Messtag gibt, muss trotzdem irgendwas in comp_probentag stehen, damit das nachfolgende Programm laeuft
+      # If there is only one measurement day, there must still be something in comp_probentag for the following program to run
       comp_probentag[1,] = c(99,99,99)
     }
     
     comp_probentyp_ohne_NA <- comp_probentyp[!is.na(comp_probentyp[,1]),]
-    # um Fehlermeldungen zu vermeiden, die nrow erzeugt wenn es nur eine oder keine Reihe gibt, wird eine Variable verwendet mit ueberpruefung
+    # To avoid error messages that nrow generates when there is only one or no row, a variable is used to check it
     nrow_comp_probentyp_ohne_NA <- nrow(comp_probentyp_ohne_NA)
     if (is.null(nrow_comp_probentyp_ohne_NA)){
       nrow_comp_probentyp_ohne_NA <- 1
@@ -420,18 +420,18 @@ server <- function(input, output, session) {
     adresse_comparisons_tage <- matrix(nrow = dimension_import[1], ncol = length_sample_type_comparison)
     adresse_comparisons_typen <- matrix(nrow = dimension_import[1], ncol = sum(1:(length_sample_type_comparison-1)))
     
-    # Plot Schleife fuer alle Tage fuer alle angegebenen Probentypen
+    # Plot loop for all days for all specified sample types
     if (!is.na(comp_probentag[1,1])){
 
-      # Es werden die Probentypen die verglichen werden sollen abgespeichert und anschlieszend werden alle relevanten Signifikanzen herausgesucht (Signifikanzen fuer gegebene Probentypen an allen Tagen und zwischen den selben Tagen fuer die Probentypen)
+      # The sample types to be compared are stored and then all relevant significances are extracted (significances for given sample types on all days and between the same days for the sample types)
       for (m in (1:length_sample_type_comparison)){
         l <- 1
         for (k in (1:nrow_comp_probentag_ohne_NA)){
           if (comp_probentag[k,3] == sample_type_comparison[m]){
             adresse_comparisons_tage[l,m] <- k 
-            # Die Reihen in "adresse_comparisons_tage" geben an, in welcher Reihe der comp_probentag Matrix ein Signifikanzwert fuer die relevanten Probentypen steht
-            # Die Spalten in "adresse_comparisons_tage" geben an, fuer welchen Probentyp das ist
-            # Beispiel: Bei 3 unterschiedlichen angegebenen Probentypen stehen die fuer den 3. relevanten Probentyp in Spalte 3
+            # The rows in "address_comparisons_days" indicate in which row of the comp_probentag matrix there is a significance value for the relevant sample types
+            # The columns in "address_comparisons_days" indicate for which sample type this is
+            # Example: If 3 different sample types are specified, the relevant samples for the 3rd sample type are listed in column 3
             l <- l + 1
           }
         }
@@ -443,9 +443,9 @@ server <- function(input, output, session) {
           for (k in (1:nrow_comp_probentyp_ohne_NA)){
             if (!(FALSE %in% (sample_type_comparison_pair[m,] %in% comp_probentyp[k,1:2]))){
               adresse_comparisons_typen[l,m] <- k
-              # In den Zellen der Matrix "adresse_comparisons_typen" stehen die Reihen, in denen in der comp_probentag Matrix ein Signifikanzwert fuer die relevanten Probentypen steht
-              # Die Spalten in "adresse_comparisons_typen" geben an, zwischen welchen Probentypen das ist
-              # Beispiel: Bei 4 unterschiedlichen angegebenen Probentypen stehen die Signifikanzen zwischen 1. und 2. Probentyp in der ersten Spalte und zwischen 2. und 3. Probentyp in Spalte 4 (Spalte1: 1 zu 2, Spalte2: 1 zu 3, Spalte3: 1 zu 4, Spalte4: 2 zu 3, Spalte5: 2 zu 4, Spalte6: 3 zu 4)
+              # The cells in the "address_comparisons_types" matrix contain the rows in which the comp_probentag matrix contains a significance value for the relevant sample types
+              # The columns in "address_comparisons_types" indicate between which sample types the p values were calculated
+              # Example: For 4 different specified sample types, the significances between the 1st and 2nd sample type are in the first column and between the 2nd and 3rd sample type in column 4 (column1: 1 to 2, column2: 1 to 3, column3: 1 to 4, column4: 2 to 3, column5: 2 to 4, column6: 3 to 4)
               l <- l + 1
             }
           }
@@ -453,7 +453,7 @@ server <- function(input, output, session) {
         }
       }
 
-      # Ermittlung der Anzahl der Signifikanzklammern insgesamt 
+      # Determination of the total number of significance brackets  
       length_adresse_comparisons <- 0
       for (m in (1:length_sample_type_comparison)){
         if (!is.na(adresse_comparisons_tage[1,m])){
@@ -467,7 +467,7 @@ server <- function(input, output, session) {
       }
       comparisons_manuell <- matrix(ncol = 4, nrow = length_adresse_comparisons)
 
-      #if Bedingung stellt sicher, dass 2 Zeilen in der Tabelle erstellt werden => ermoeglicht eine gute Darstellung auch wenn weniger Zeilen mit Werten gefuellt werden
+      #if Condition ensures that 2 rows are created in the table => enables a good display even if fewer rows are filled with values
       if (length_adresse_comparisons>1) {comparisons_table <- matrix(ncol = 3, nrow = length_adresse_comparisons)}
       else {comparisons_table <- matrix(ncol = 3, nrow = 2)}
       
@@ -481,10 +481,10 @@ server <- function(input, output, session) {
       }
       empty_space <- ""
       l <- 1
-      pos_value <- vector(mode = "numeric", length = dim(adresse_comparisons_tage)[2]) #Position der Klammer als Faktor (beginnt fuer alle Probentypen mit 1 und steigert sich dann unabhaengig voneinander um 0.25 je Klammer)
-      scale_value <- vector(mode = "numeric", length = dim(adresse_comparisons_tage)[2]) #der maximale Wert
+      pos_value <- vector(mode = "numeric", length = dim(adresse_comparisons_tage)[2]) # Position of the bracket as a factor (starts with 1 for all sample types and then increases independently by 0.25 per bracket)
+      scale_value <- vector(mode = "numeric", length = dim(adresse_comparisons_tage)[2]) # the maximum value
       for (m in (1:dim(adresse_comparisons_tage)[2])){
-        scale_value[m] <- max(import_data[zeilennummer_probentyp[zu_vergleichende_probentypen[m],],substanz], na.rm = TRUE) # der maximale Wert der ueberhaupt ins Diagramm gezeichnet wird (Klammerzeichnung beginnt ueber dem maximalen Wert aller Probentypen)
+        scale_value[m] <- max(import_data[zeilennummer_probentyp[zu_vergleichende_probentypen[m],],substanz], na.rm = TRUE) # the maximum value that is drawn in the diagram (drawing in brackets starts above the maximum value of all sample types)
       }
       for (m in (1:dim(adresse_comparisons_tage)[2])){
         pos_value[m] <- 1.2
@@ -493,30 +493,30 @@ server <- function(input, output, session) {
         while (k <= ziel){
           adresse_1 <- which(bedeutung_zeilennummer_beides == paste(comp_probentag[adresse_comparisons_tage[k,m],1],comp_probentag[adresse_comparisons_tage[k,m],3],sep = ""))
           adresse_2 <- which(bedeutung_zeilennummer_beides == paste(comp_probentag[adresse_comparisons_tage[k,m],2],comp_probentag[adresse_comparisons_tage[k,m],3],sep = ""))
-          comparisons_manuell[l,1] <- paste(empty_space,as.character(comp_probentag[adresse_comparisons_tage[k,m],1]),empty_space,sep = "") # Name zur Zuweisung im Plotbefehl
-          comparisons_manuell[l,2] <- paste(empty_space,as.character(comp_probentag[adresse_comparisons_tage[k,m],2]),empty_space,sep = "") # Name zur Zuweisung im Plotbefehl
+          comparisons_manuell[l,1] <- paste(empty_space,as.character(comp_probentag[adresse_comparisons_tage[k,m],1]),empty_space,sep = "") # Name for assignment in the plot command
+          comparisons_manuell[l,2] <- paste(empty_space,as.character(comp_probentag[adresse_comparisons_tage[k,m],2]),empty_space,sep = "") # Name for assignment in the plot command
           comparisons_manuell[l,3] <- as.character(wilcox.test(as.numeric(unlist(import_data[zeilennummer_beides[adresse_1,1:laenge_zeilennummer_beides[adresse_1]],substanz])),
-                                                               as.numeric(unlist(import_data[zeilennummer_beides[adresse_2,1:laenge_zeilennummer_beides[adresse_2]],substanz])))[3]) # statistischer Test gibt in der dritten Spalte [3] den p-Wert aus 
-          comparisons_manuell[l,4] <- pos_value[m]*max(scale_value)+scale_value[m]-max(scale_value) # Positionierung der Signifikanzklammer im Plot
-          comparisons_table[l,1] <- paste(as.character(comp_probentag[adresse_comparisons_tage[k,m],3]),"_",as.character(comp_probentag[adresse_comparisons_tage[k,m],1]),sep = "") # Bezeichnung fuer die erste Spalte der Tabelle im GUI
-          comparisons_table[l,2] <- paste(as.character(comp_probentag[adresse_comparisons_tage[k,m],3]),"_",as.character(comp_probentag[adresse_comparisons_tage[k,m],2]),sep = "") # Bezeichnung fuer die zweite Spalte der Tabelle im GUI
-          comparisons_table[l,3] <- comparisons_manuell[l,3] # p-Wert fuer die Tabelle im GUI
+                                                               as.numeric(unlist(import_data[zeilennummer_beides[adresse_2,1:laenge_zeilennummer_beides[adresse_2]],substanz])))[3]) # the wilcoxon statistical test returns the p-value in the third column 
+          comparisons_manuell[l,4] <- pos_value[m]*max(scale_value)+scale_value[m]-max(scale_value) # positioning of the significance brackets in the plot window
+          comparisons_table[l,1] <- paste(as.character(comp_probentag[adresse_comparisons_tage[k,m],3]),"_",as.character(comp_probentag[adresse_comparisons_tage[k,m],1]),sep = "") # Name for the first column of the table in the GUI
+          comparisons_table[l,2] <- paste(as.character(comp_probentag[adresse_comparisons_tage[k,m],3]),"_",as.character(comp_probentag[adresse_comparisons_tage[k,m],2]),sep = "") # Name for the second column of the table in the GUI
+          comparisons_table[l,3] <- comparisons_manuell[l,3] # p-value for the table in the GUI
           l <- l+1
           pos_value[m] <- pos_value[m] + 0.17
           k <- k + 1
         }
-        #Um die Probentage trotz gleicher Bezeichnung nebeneinander darzustellen, wird eine steigende Anzahl an Leerzeichen vor und hinter die Tagesbezeichnung eingefuegt => empty_space
-        #Beispiel: Probentyp 1 ist der erste Tag "1", fuer Probentyp 2 ist der dritte Tag " 3 ", fuer Probentyp 4 ist der vierte Tag "   4   "
+        # To display the sample days next to each other despite having the same name, an increasing number of spaces are inserted before and after the day name => empty_space
+        # Example: Sample type 1 is the first day "1", for sample type 2 the third day is " 3 ", for sample type 4 the fourth day is "   4   ".
         empty_space <-paste(empty_space," ", sep = "") 
       }
       pos_value2 <- max(pos_value)
       scale_value2 <- max(scale_value)
-      zaehler <- 1 # Zaehler fuer die Spalten der Matrix adresse_comparisons_typen
-      for (m in (1:(length_sample_type_comparison-1))){ # Einmal alle Probentypen (Bei 4 Probentypen laeuft die Schleife von 1 bis 4)
-        for (i in ((m+1):length_sample_type_comparison)){ # Die Probentypen die damit interargieren koennen (Bei 4 Probentypen laeuft die Schleife von 2 bis 4 und 3 bis 4 und nur 4)
+      zaehler <- 1 # counter for the columns of the matrix adresse_comparisons_typen
+      for (m in (1:(length_sample_type_comparison-1))){ # Once all sample types (with 4 sample types, the loop runs from 1 to 4)
+        for (i in ((m+1):length_sample_type_comparison)){ # The sample types that can interact with it (with 4 sample types, the loop runs from 2 to 4 and 3 to 4 and only 4)
           k <- 1
           ziel <- length(which(!is.na(adresse_comparisons_typen[,zaehler])))
-          while (k <= ziel){ # Die Zeilen der Matrix ohne NA
+          while (k <= ziel){ # the rows of the matrix without NA
             empty_space1 <- ""
             empty_space2 <- ""
             o <- 1
@@ -529,11 +529,11 @@ server <- function(input, output, session) {
             }
             adresse_1 <- which(bedeutung_zeilennummer_beides == paste(comp_probentyp[adresse_comparisons_typen[k,zaehler],3],comp_probentyp[adresse_comparisons_typen[k,zaehler],1],sep = ""))
             adresse_2 <- which(bedeutung_zeilennummer_beides == paste(comp_probentyp[adresse_comparisons_typen[k,zaehler],3],comp_probentyp[adresse_comparisons_typen[k,zaehler],2],sep = ""))
-            comparisons_manuell[l,1] <- paste(empty_space1,as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),empty_space1,sep = "") # Name zur Zuweisung im Plotbefehl
-            comparisons_manuell[l,2] <- paste(empty_space2,as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),empty_space2,sep = "") # Name zur Zuweisung im Plotbefehl
+            comparisons_manuell[l,1] <- paste(empty_space1,as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),empty_space1,sep = "") # Name for assignment in the plot command
+            comparisons_manuell[l,2] <- paste(empty_space2,as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),empty_space2,sep = "") # Name for assignment in the plot command
             comparisons_manuell[l,3] <- as.character(wilcox.test(as.numeric(unlist(import_data[zeilennummer_beides[adresse_1,1:laenge_zeilennummer_beides[adresse_1]],substanz])),
-                                                                 as.numeric(unlist(import_data[zeilennummer_beides[adresse_2,1:laenge_zeilennummer_beides[adresse_2]],substanz])))[3]) # statistischer Test gibt in der dritten Spalte [3] den p-Wert aus 
-            comparisons_manuell[l,4] <- pos_value2*scale_value2 # Positionierung der Signifikanzklammer im Plot
+                                                                 as.numeric(unlist(import_data[zeilennummer_beides[adresse_2,1:laenge_zeilennummer_beides[adresse_2]],substanz])))[3]) # the wilcoxon statistical test returns the p-value in the third column 
+            comparisons_manuell[l,4] <- pos_value2*scale_value2 # positioning of the significance brackets in the plot window
             comparisons_table[l,1] <- paste(as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],1]),"_",as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),sep = "")
             comparisons_table[l,2] <- paste(as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],2]),"_",as.character(comp_probentyp[adresse_comparisons_typen[k,zaehler],3]),sep = "")
             comparisons_table[l,3] <- comparisons_manuell[l,3]
@@ -549,18 +549,18 @@ server <- function(input, output, session) {
     empty_space <- ""
     plot_data <- tibble()
     m <- 1
-    # Die folgende Schleife bereitet die Daten fuer den plot-Befehl auf, => Die Messtage von verschiedenen Probentypen muessen unterschieden werden, dazu wird empty_space genutzt 
+    # The following loop prepares the data for the plot command, => The measurement days of different sample types must be differentiated, empty_space is used for this purpose 
     for (i in (1:length_sample_type_comparison)){
-      temp_adresse <- zeilennummer_probentyp[zu_vergleichende_probentypen[i],!is.na(zeilennummer_probentyp[zu_vergleichende_probentypen[i],])] #damit keine NAs als Daten an den plot Befehl uebergeben werden
-      plot_data <- bind_rows(plot_data,tibble(as_tibble("",column_name = colnames(import_data[,1])),import_data[temp_adresse,2:length(import_data)])) # Die tibbles werden verbunden
+      temp_adresse <- zeilennummer_probentyp[zu_vergleichende_probentypen[i],!is.na(zeilennummer_probentyp[zu_vergleichende_probentypen[i],])] # so that no NAs are passed as data to the plot command
+      plot_data <- bind_rows(plot_data,tibble(as_tibble("",column_name = colnames(import_data[,1])),import_data[temp_adresse,2:length(import_data)])) # the tibbles are connected
       
       for (i in (1:length(temp_adresse))){
-        plot_data[m,1] <- paste(empty_space,as.character(import_data[temp_adresse[i],1]),empty_space, sep = "") # die Werte der ersten Spalte werden mit hinzugefuegten Leerzeichen ueberschrieben
+        plot_data[m,1] <- paste(empty_space,as.character(import_data[temp_adresse[i],1]),empty_space, sep = "") # the values in the first column are overwritten with added spaces
         m <- m+1
       }
-      #Um die Probentage trotz gleicher Bezeichnung nebeneinander darzustellen, wird eine steigende Anzahl an Leerzeichen vor und hinter (damit steht der Text in der Mitte) die Tagesbezeichnung eingefuegt => empty_space
-      #Beispiel: Probentyp 1 ist der erste Tag "1", fuer Probentyp 2 ist der dritte Tag " 3 ", fuer Probentyp 4 ist der vierte Tag "   4   "
-      empty_space <- paste(empty_space," ", sep = "") #hier wird je Probentyp immer ein Leerzeichen angefuegt
+      # In order to display the sample days next to each other despite the same name, an increasing number of spaces are inserted before and after (so that the text is in the middle) the day name => empty_space
+      # Example: Sample type 1 is the first day "1", for sample type 2 the third day is " 3 ", for sample type 4 the fourth day is "   4   "
+      empty_space <- paste(empty_space," ", sep = "") #A space is always added here for each sample type
     }
     colour_adress <- (1:length_sample_type_comparison)*anzahl_unterschiedlicher_werte_messtag
     x_pos <- (1:length_sample_type_comparison)*anzahl_unterschiedlicher_werte_messtag-anzahl_unterschiedlicher_werte_messtag/2+0.5
@@ -611,7 +611,7 @@ server <- function(input, output, session) {
     import_data <- import_data_safety
   })
   
-  # Schreiben der p-values der Tabelle in eine Datei
+  # Writing the p-values of the table to a file
   observeEvent(input$export, {
     write.csv(global.table,paste(export_directory,file_name,"_",input$gewaehlte_substanz,"_mit_",input$grenzwert,".csv",sep = ""))
   })
@@ -658,7 +658,7 @@ server <- function(input, output, session) {
   )
 
   output$export_table <- renderTable({
-    #Damit dieser Schritt ausgefuehrt wird, muessen die Variablen aufgerufen werden, die Werte in der Tabelle veraendern
+    # For this step to be executed, the variables that change values in the table must be called
     reaktivitaet <- input$gewaehlte_substanz
     reaktivitaet <- input$grenzwert
     reaktivitaet <- input$draw_violin_plots
